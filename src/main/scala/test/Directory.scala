@@ -43,6 +43,6 @@ object Directory {
     Try {
       val dir = FileSystems.getDefault.getPath(path)
       Files.walk(dir, 1).iterator.asScala.filter(Files.isRegularFile(_)).toList
-    }.toEither.left.map(ReadFileError.DirectoryNotFound.apply)
+    }.toEither.left.map(e => ReadFileError.DirectoryNotFound(path, e))
 
 }

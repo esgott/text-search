@@ -1,5 +1,6 @@
 package test
 
+import test.ReadFileError._
 import test.util._
 
 import java.time.{Duration, Instant}
@@ -9,7 +10,7 @@ import scala.io.StdIn.readLine
 object SimpleSearch {
 
   def main(args: Array[String]): Unit =
-    readFile(args).fold(println, idx => iterate(idx, Rank.weighted(idx)))
+    readFile(args).fold(printError, idx => iterate(idx, Rank.weighted(idx)))
 
   def readFile(args: Array[String]): Either[ReadFileError, Index] = {
     for {
@@ -19,8 +20,10 @@ object SimpleSearch {
       indexes   <- directory.using { dir =>
                      dir.files.map(f =>
                        Index.fromLines(f.source.getLines, f.name).recover {
-                         case ReadFileError.NonBinaryFile(fileName) =>
-                           println(s"Warning: Found binary file $fileName")
+                         case ReadFileError.InvalidTextFile(fileName, t) =>
+                           println(
+                             s"Warning: Invalid text file $fileName (${t.getClass.getSimpleName}): ${t.getMessage}"
+                           )
                            Index.empty(fileName)
                        }
                      )
@@ -30,6 +33,21 @@ object SimpleSearch {
       duration   = Duration.between(start, end).toMillis
       _          = println(s"Indexing complete, took $duration ms")
     } yield index
+  }
+
+  def printError(e: ReadFileError): Unit = e match {
+    case MissingPathArg                 =>
+      println("No path argument given")
+    case DirectoryNotFound(fileName, t) =>
+      val className = t.getClass.getSimpleName
+      println(s"Directory $fileName not found ($className): ${t.getMessage}")
+    case InvalidTextFile(fileName, t)   =>
+      val className = t.getClass.getSimpleName
+      val msg       = t.getMessage
+      println(s"$fileName is not a valid text file ($className): $msg")
+    case ReadingError(fileName, t)      =>
+      val className = t.getClass.getSimpleName
+      println(s"Unable to read file $fileName ($className): ${t.getMessage}")
   }
 
   @tailrec

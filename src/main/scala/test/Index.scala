@@ -1,7 +1,7 @@
 package test
 
 import test.Index._
-import test.ReadFileError.{NonBinaryFile, ReadingError}
+import test.ReadFileError.{InvalidTextFile, ReadingError}
 
 import java.nio.charset.MalformedInputException
 import scala.util.Try
@@ -27,8 +27,8 @@ object Index {
   ): Either[ReadFileError, Index] =
     for {
       index <- Try(readIndex(lines, fileName)).toEither.left.map {
-                 case _: MalformedInputException => NonBinaryFile(fileName)
-                 case other                      => ReadingError(other)
+                 case e: MalformedInputException => InvalidTextFile(fileName, e)
+                 case other                      => ReadingError(fileName, other)
                }
     } yield Index(index, Set(fileName))
 
