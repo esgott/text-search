@@ -2,21 +2,12 @@ package test
 
 import java.time.{Duration, Instant}
 import scala.annotation.tailrec
+import scala.io.StdIn.readLine
 
 object SimpleSearch {
 
   def main(args: Array[String]): Unit =
-    Program
-      .readFile(args)
-      .fold(
-        println,
-        Program.iterate
-      )
-
-}
-
-object Program {
-  import scala.io.StdIn.readLine
+    readFile(args).fold(println, iterate)
 
   def readFile(args: Array[String]): Either[ReadFileError, Index] = {
     for {
