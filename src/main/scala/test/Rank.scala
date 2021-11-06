@@ -18,9 +18,15 @@ object Rank {
     case _          => None
   }
 
+  /** A very simple ranking algorithm, that never finds a match.
+    */
   def empty: Rank =
     (_: List[String]) => List.empty
 
+  /** The score for a result is proportional to the number of files the word is
+    * found in, e.g. 100% if it can be found in all the files, 0% if in none of
+    * them, 50% if in half of them.
+    */
   def linear(index: Index): Rank =
     (words: List[String]) =>
       sorted {
@@ -31,6 +37,13 @@ object Rank {
         } yield Result(word, score)
       }
 
+  /** The score is weighted towards the results where the word can be found more
+    * times in the files. For each search a maximum hit is calculated, which is
+    * the maximum occurrence of the words plus the files where there wasn't any
+    * occurrence (this ensures that it can only get 100% if there was occurrence
+    * in all files). Then the score is calculated by the ratio between the
+    * number of occurrences and the max hit.
+    */
   def weighted(index: Index): Rank =
     (words: List[String]) =>
       sorted {
