@@ -54,6 +54,9 @@ object SimpleSearch {
   def iterate(index: Index, rank: Rank): Unit = {
     print(s"search> ")
     Option(readLine()) match {
+      case Some(":quit") | None =>
+        println("\nBye")
+
       case Some(rankName) if rankName.startsWith("!") =>
         iterate(index, newRank(rankName.drop(1), index, rank))
 
@@ -65,9 +68,6 @@ object SimpleSearch {
         else
           println(result.map(r => s"${r.word} : ${r.score}%").mkString(" "))
         iterate(index, rank)
-
-      case None =>
-        println("\nBye")
     }
   }
 
