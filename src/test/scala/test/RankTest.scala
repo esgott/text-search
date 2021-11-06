@@ -35,4 +35,17 @@ class RankTest extends AnyFlatSpec with Matchers {
     )
   }
 
+  "Weighted rank" should "score words propotionally to how many hits are in each file" in {
+    Rank.weighted(index).search(List("w1")) shouldBe List(Result("w1", 33))
+    // maxHit is 3+6=9, w1 gets 3 hits, 3/9=0.333
+  }
+
+  it should "sort results" in {
+    Rank.weighted(index).search(List("w1", "w2")) shouldBe List(
+      Result("w2", 71),
+      Result("w1", 21)
+    )
+    // maxHit is 10+4=14, w1: 3/14=0.214, w2: 10/14=0.714
+  }
+
 }

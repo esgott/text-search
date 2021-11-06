@@ -9,7 +9,7 @@ import scala.io.StdIn.readLine
 object SimpleSearch {
 
   def main(args: Array[String]): Unit =
-    readFile(args).fold(println, idx => iterate(idx, Rank.linear(idx)))
+    readFile(args).fold(println, idx => iterate(idx, Rank.weighted(idx)))
 
   def readFile(args: Array[String]): Either[ReadFileError, Index] = {
     for {

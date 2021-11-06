@@ -12,9 +12,10 @@ object Rank {
   case class Result(word: String, score: Int)
 
   def forName(name: String, index: Index): Option[Rank] = name match {
-    case "empty"  => Some(empty)
-    case "linear" => Some(linear(index))
-    case _        => None
+    case "empty"    => Some(empty)
+    case "linear"   => Some(linear(index))
+    case "weighted" => Some(weighted(index))
+    case _          => None
   }
 
   def empty: Rank =
@@ -27,6 +28,25 @@ object Rank {
           word <- words
           hit   = index.filesFor(word)
           score = (hit.size.toFloat / index.files.size * 100).toInt
+        } yield Result(word, score)
+      }.sortBy(_.score).reverse
+
+  def weighted(index: Index): Rank =
+    (words: List[String]) =>
+      {
+        val maxHit = words
+          .map(index.filesFor)
+          .map { hits =>
+            val missingFiles = index.files -- hits.map(_.fileName)
+            hits.map(_.times).sum + missingFiles.size
+          }
+          .max
+
+        for {
+          word <- words
+          hits  = index.filesFor(word).map(_.times).sum
+          score = (hits.toFloat / maxHit * 100).toInt
+          _     = println(s"$word: hits=$hits maxHit=$maxHit")
         } yield Result(word, score)
       }.sortBy(_.score).reverse
 
