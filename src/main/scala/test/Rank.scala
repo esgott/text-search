@@ -23,17 +23,17 @@ object Rank {
 
   def linear(index: Index): Rank =
     (words: List[String]) =>
-      {
+      sorted {
         for {
           word <- words
           hit   = index.filesFor(word)
           score = (hit.size.toFloat / index.files.size * 100).toInt
         } yield Result(word, score)
-      }.sortBy(_.score).reverse
+      }
 
   def weighted(index: Index): Rank =
     (words: List[String]) =>
-      {
+      sorted {
         val maxHit = words
           .map(index.filesFor)
           .map { hits =>
@@ -48,6 +48,9 @@ object Rank {
           score = (hits.toFloat / maxHit * 100).toInt
           _     = println(s"$word: hits=$hits maxHit=$maxHit")
         } yield Result(word, score)
-      }.sortBy(_.score).reverse
+      }
+
+  private def sorted(l: List[Result]): List[Result] =
+    l.sortBy(_.score).reverse
 
 }
