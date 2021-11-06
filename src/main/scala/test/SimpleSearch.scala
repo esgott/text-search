@@ -1,5 +1,8 @@
 package test
 
+import java.time.{Duration, Instant}
+import scala.annotation.tailrec
+
 object SimpleSearch {
 
   def main(args: Array[String]): Unit =
@@ -15,14 +18,23 @@ object SimpleSearch {
 object Program {
   import scala.io.StdIn.readLine
 
-  def readFile(args: Array[String]): Either[ReadFileError, Directory] = {
+  def readFile(args: Array[String]): Either[ReadFileError, Index] = {
     for {
       path      <- args.headOption.toRight(ReadFileError.MissingPathArg)
+      start      = Instant.now
       directory <- Directory(path)
-    } yield directory
+      indexes    = directory.using { dir =>
+                     dir.files.map(f => Index.fromLines(f.source.getLines, f.name))
+                   }
+      index      = Index.merge(indexes)
+      end        = Instant.now
+      duration   = Duration.between(start, end).toMillis
+      _          = println(s"Indexing complete, took $duration ms")
+    } yield index
   }
 
-  def iterate(indexedFiles: Directory): Unit = {
+  @tailrec
+  def iterate(indexedFiles: Index): Unit = {
     print(s"search> ")
     Option(readLine()) match {
       case Some(searchString) =>
@@ -33,4 +45,5 @@ object Program {
         println("\nBye")
     }
   }
+
 }
