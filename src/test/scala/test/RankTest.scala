@@ -2,14 +2,20 @@ package test
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import test.Index.FoundIn
 import test.Rank.Result
 
 class RankTest extends AnyFlatSpec with Matchers {
 
   val index = Index(
     Map(
-      "w1" -> Set("f1", "f2"),
-      "w2" -> Set("f3", "f4", "f5", "f6")
+      "w1" -> Set(FoundIn("f1", 1), FoundIn("f2", 2)),
+      "w2" -> Set(
+        FoundIn("f3", 1),
+        FoundIn("f4", 2),
+        FoundIn("f5", 3),
+        FoundIn("f6", 4)
+      )
     ),
     Set("f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8")
   )
