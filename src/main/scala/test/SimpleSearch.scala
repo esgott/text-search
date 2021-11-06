@@ -7,7 +7,7 @@ import scala.io.StdIn.readLine
 object SimpleSearch {
 
   def main(args: Array[String]): Unit =
-    readFile(args).fold(println, iterate(_, Rank.emptyRank))
+    readFile(args).fold(println, iterate(_, Rank.empty))
 
   def readFile(args: Array[String]): Either[ReadFileError, Index] = {
     for {
@@ -33,11 +33,11 @@ object SimpleSearch {
 
       case Some(searchString) =>
         val words  = searchString.split(' ').toList
-        val result = rank.search(words)
+        val result = rank.search(words).take(10)
         if (result.isEmpty)
           println("no matches found")
         else
-          println(result.map(r => s"${r.fileName} : ${r.score}%").mkString(" "))
+          println(result.map(r => s"${r.word} : ${r.score}%").mkString(" "))
         iterate(index, rank)
 
       case None =>

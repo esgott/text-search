@@ -9,14 +9,14 @@ trait Rank {
 
 object Rank {
 
-  case class Result(fileName: String, score: Int)
+  case class Result(word: String, score: Int)
 
   def forName(name: String, index: Index): Option[Rank] = name match {
-    case "empty" => Some(emptyRank)
+    case "empty" => Some(empty)
     case _       => None
   }
 
-  def emptyRank: Rank =
+  def empty: Rank =
     (_: List[String]) => List.empty
 
 }
