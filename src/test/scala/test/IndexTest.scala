@@ -14,17 +14,19 @@ class IndexTest extends AnyFlatSpec with Matchers {
       "w7 w1 w2"
     )
 
-    Index.fromLines(lines.iterator, "lines.txt") shouldBe Index(
-      Map(
-        "w1" -> Set(FoundIn("lines.txt", 2)),
-        "w2" -> Set(FoundIn("lines.txt", 2)),
-        "w3" -> Set(FoundIn("lines.txt", 1)),
-        "w4" -> Set(FoundIn("lines.txt", 1)),
-        "w5" -> Set(FoundIn("lines.txt", 1)),
-        "w6" -> Set(FoundIn("lines.txt", 1)),
-        "w7" -> Set(FoundIn("lines.txt", 1))
-      ),
-      Set("lines.txt")
+    Index.fromLines(lines.iterator, "lines.txt") shouldBe Right(
+      Index(
+        Map(
+          "w1" -> Set(FoundIn("lines.txt", 2)),
+          "w2" -> Set(FoundIn("lines.txt", 2)),
+          "w3" -> Set(FoundIn("lines.txt", 1)),
+          "w4" -> Set(FoundIn("lines.txt", 1)),
+          "w5" -> Set(FoundIn("lines.txt", 1)),
+          "w6" -> Set(FoundIn("lines.txt", 1)),
+          "w7" -> Set(FoundIn("lines.txt", 1))
+        ),
+        Set("lines.txt")
+      )
     )
   }
 

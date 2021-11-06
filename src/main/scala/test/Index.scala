@@ -1,6 +1,7 @@
 package test
 
 import test.Index._
+import test.ReadFileError.{NonBinaryFile, ReadingError}
 
 import java.nio.charset.MalformedInputException
 import scala.util.Try
@@ -18,26 +19,32 @@ object Index {
     def found: FoundIn = copy(times = times + 1)
   }
 
-  def fromLines(lines: Iterator[String], fileName: String): Index = {
-    val empty = Map.empty[String, Set[FoundIn]]
+  def empty(fileName: String): Index = Index(Map.empty, Set(fileName))
 
-    val index = Try {
-      lines
-        .flatMap(_.split(' '))
-        .map(tokenize)
-        .foldLeft(empty) { (map, word) =>
-          map.updatedWith(word) {
-            case None          => Some(Set(FoundIn(fileName, 1)))
-            case Some(foundIn) => Some(foundIn.map(_.found))
-          }
+  def fromLines(
+      lines: Iterator[String],
+      fileName: String
+  ): Either[ReadFileError, Index] =
+    for {
+      index <- Try(readIndex(lines, fileName)).toEither.left.map {
+                 case _: MalformedInputException => NonBinaryFile(fileName)
+                 case other                      => ReadingError(other)
+               }
+    } yield Index(index, Set(fileName))
+
+  private def readIndex(
+      lines: Iterator[String],
+      fileName: String
+  ): Map[String, Set[FoundIn]] =
+    lines
+      .flatMap(_.split(' '))
+      .map(tokenize)
+      .foldLeft(empty(fileName).words) { (map, word) =>
+        map.updatedWith(word) {
+          case None          => Some(Set(FoundIn(fileName, 1)))
+          case Some(foundIn) => Some(foundIn.map(_.found))
         }
-    }.recover { case _: MalformedInputException =>
-      println(s"Warning: binary file found: $fileName")
-      empty
-    }.get
-
-    Index(index, Set(fileName))
-  }
+      }
 
   private def tokenize(word: String): String =
     word.replaceAll("[^A-Za-z0-9]", "")

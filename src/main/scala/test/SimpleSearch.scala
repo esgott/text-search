@@ -1,5 +1,7 @@
 package test
 
+import test.util._
+
 import java.time.{Duration, Instant}
 import scala.annotation.tailrec
 import scala.io.StdIn.readLine
@@ -14,9 +16,15 @@ object SimpleSearch {
       path      <- args.headOption.toRight(ReadFileError.MissingPathArg)
       start      = Instant.now
       directory <- Directory(path)
-      indexes    = directory.using { dir =>
-                     dir.files.map(f => Index.fromLines(f.source.getLines, f.name))
-                   }
+      indexes   <- directory.using { dir =>
+                     dir.files.map(f =>
+                       Index.fromLines(f.source.getLines, f.name).recover {
+                         case ReadFileError.NonBinaryFile(fileName) =>
+                           println(s"Warning: Found binary file $fileName")
+                           Index.empty(fileName)
+                       }
+                     )
+                   }.sequence
       index      = Index.merge(indexes)
       end        = Instant.now
       duration   = Duration.between(start, end).toMillis
