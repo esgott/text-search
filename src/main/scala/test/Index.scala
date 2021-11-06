@@ -3,7 +3,7 @@ package test
 import java.nio.charset.MalformedInputException
 import scala.util.Try
 
-case class Index(words: Map[String, Set[String]]) {
+case class Index(words: Map[String, Set[String]], files: Set[String]) {
   import Index._
 
   def filesFor(word: String): Set[String] =
@@ -28,7 +28,7 @@ object Index {
       empty
     }.get
 
-    Index(index)
+    Index(index, Set(fileName))
   }
 
   private def tokenize(word: String): String =
@@ -36,11 +36,12 @@ object Index {
 
   def merge(is: List[Index]): Index =
     Index(
-      is
+      words = is
         .map(_.words.keySet)
         .reduce(_ ++ _)
         .map(word => word -> is.flatMap(_.words.get(word)).toSet.flatten)
-        .toMap
+        .toMap,
+      files = is.map(_.files).toSet.flatten
     )
 
 }

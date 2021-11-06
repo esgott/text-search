@@ -21,7 +21,8 @@ class IndexTest extends AnyFlatSpec with Matchers {
         "w5" -> Set("lines.txt"),
         "w6" -> Set("lines.txt"),
         "w7" -> Set("lines.txt")
-      )
+      ),
+      Set("lines.txt")
     )
   }
 
@@ -30,14 +31,16 @@ class IndexTest extends AnyFlatSpec with Matchers {
       Map(
         "w1" -> Set("f1"),
         "w2" -> Set("f1")
-      )
+      ),
+      Set("f1")
     )
 
     val i2 = Index(
       Map(
         "w2" -> Set("f2"),
         "w3" -> Set("f2")
-      )
+      ),
+      Set("f2")
     )
 
     Index.merge(List(i1, i2)) shouldBe Index(
@@ -45,7 +48,8 @@ class IndexTest extends AnyFlatSpec with Matchers {
         "w1" -> Set("f1"),
         "w2" -> Set("f1", "f2"),
         "w3" -> Set("f2")
-      )
+      ),
+      Set("f1", "f2")
     )
   }
 
